@@ -38,8 +38,9 @@ git submodule update --remote
 ### NOTAS PARA PROGRAMAR CON MICROSERVICIOS POR REFERENCIA COMO ESTA ESTE
 
 si estamos editando ejemplo el gateway o cualquier otro microservicio, debemos:
-    1. crear el commit en la seccion de ese microservicio, hacer el push en ese microservicio
-    2. luego debemos actualizar la referencia en nuestro proyecto lanzador de microservicios con un commit y ejecutar el push desde el repo padre o lanzador.
+
+1. crear el commit en la seccion de ese microservicio, hacer el push en ese microservicio
+2. luego debemos actualizar la referencia en nuestro proyecto lanzador de microservicios con un commit y ejecutar el push desde el repo padre o lanzador.
 
 
 ## Importante
