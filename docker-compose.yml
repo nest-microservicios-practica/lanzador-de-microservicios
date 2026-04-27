@@ -1,0 +1,69 @@
+name: productos-nestjs-app
+services:
+  nats-server:
+    image: nats:2.12.7-alpine
+    ports:
+      # - "4222:4222"
+      # 8222 es el puerto de monitoreo del servidor NATS, que proporciona una interfaz web para supervisar el estado del servidor, ver estadísticas y realizar tareas administrativas. Al exponer este puerto, puedes acceder a la interfaz de monitoreo desde tu navegador web utilizando la dirección http://localhost:8222.
+      - "8222:8222"
+  pedidos-database:
+    container_name: pedidos-database
+    image: postgres:17.2
+    volumes:
+      - ./pedidos-microservice/postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=12345
+      - POSTGRES_DB=pedidosdb
+    ports:
+      - '5432:5432'
+    # para validar que la db realmente esta montada y lista para recibir conexiones, se puede usar el healthcheck, que es una funcionalidad de Docker que permite verificar la salud de un contenedor. En este caso, se utiliza el comando pg_isready para comprobar si la base de datos PostgreSQL está lista para aceptar conexiones. El healthcheck se configura con un intervalo de 5 segundos, un tiempo de espera de 5 segundos, un máximo de 10 reintentos y un período de inicio de 10 segundos.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d pedidosdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+  cliente-gateway:
+    build: ./cliente-gateway
+    ports:
+      # - 3000:3000
+      - ${CLIENT_GATEWAY_PORT}:3000
+    volumes:
+      - ./cliente-gateway/src:/usr/src/app/src
+    command: npm run start:dev
+    environment:
+      - PORT=3000
+      - NATS_SERVERS=nats://nats-server:4222
+    depends_on:
+      - nats-server
+  productos-microservice:
+    build: ./productos-microservice
+    ports:
+      - ${PRODUCTOS_MICROSERVICE_PORT}:3001
+    volumes:
+      - ./productos-microservice/src:/usr/src/app/src
+    command: npm run start:dev
+    environment:
+      - PORT=3001
+      - NATS_SERVERS=nats://nats-server:4222
+      - DATABASE_URL=file:./dev.db
+    depends_on:
+      - nats-server
+  pedidos-microservice:
+    build: ./pedidos-microservice
+    ports:
+      - ${PEDIDOS_MICROSERVICE_PORT}:3002
+    volumes:
+      - ./pedidos-microservice/src:/usr/src/app/src
+    command: npm run start:dev
+    environment:
+      - PORT=3002
+      - NATS_SERVERS=nats://nats-server:4222
+      - DATABASE_URL=postgresql://postgres:12345@pedidos-database:5432/pedidosdb?schema=public
+    depends_on:
+      nats-server:
+        condition: service_started
+      pedidos-database:
+      # lo siguiente es para garantizar que el servicio de pedidos-microservice solo se inicie después de que la base de datos esté completamente lista y saludable. Esto es importante porque el microservicio de pedidos depende de la base de datos para funcionar correctamente, y si intenta conectarse a la base de datos antes de que esté lista, podría fallar o generar errores.
+        condition: service_healthy
