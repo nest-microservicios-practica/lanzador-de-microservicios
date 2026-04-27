@@ -12,7 +12,12 @@
 ```
 git submodule add <repository_url> <directory_name>
 
+EJEMPLO:
 git submodule add https://github.com/nest-microservicios-practica/cliente-gateway.git cliente-gateway
+git submodule add  https://github.com/nest-microservicios-practica/productos-microservicio.git   productos-microservice
+git submodule add  https://github.com/nest-microservicios-practica/pedidos-microservice.git   pedidos-microservice 
+
+
 ```
 4. Añadir los cambios al repositorio (git add, git commit, git push)
 Ej:
@@ -30,6 +35,12 @@ git submodule update --init --recursive
 git submodule update --remote
 ```
 
+### NOTAS PARA PROGRAMAR CON MICROSERVICIOS POR REFERENCIA COMO ESTA ESTE
+
+si estamos editando ejemplo el gateway o cualquier otro microservicio, debemos:
+    1. crear el commit en la seccion de ese microservicio, hacer el push en ese microservicio
+    2. luego debemos actualizar la referencia en nuestro proyecto lanzador de microservicios con un commit y ejecutar el push desde el repo padre o lanzador.
+
 
 ## Importante
 Si se trabaja en el repositorio que tiene los sub-módulos, **primero actualizar y hacer push** en el sub-módulo y **después** en el repositorio principal. 
@@ -37,8 +48,3 @@ Si se trabaja en el repositorio que tiene los sub-módulos, **primero actualizar
 Si se hace al revés, se perderán las referencias de los sub-módulos en el repositorio principal y tendremos que resolver conflictos.
 
 
-## NOTA IMPORTANTE DE DESARROLLO
-
-si estamos editando ejemplo el gateway o cualquier otro microservicio, debemos:
-    1. crear el commit en la seccion de ese microservicio, hacer el push en ese microservicio
-    2. luego debemos actualizar la referencia en nuestro proyecto lanzador de microservicios con un commit y ejecutar el push desde el repo padre o lanzador.
