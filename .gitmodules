@@ -10,3 +10,6 @@
 [submodule "pagos-microservice"]
 	path = pagos-microservice
 	url = https://github.com/nest-microservicios-practica/pagos-microservice.git
+[submodule "auth-microservice"]
+	path = auth-microservice
+	url = https://github.com/nest-microservicios-practica/auth-microservice.git
