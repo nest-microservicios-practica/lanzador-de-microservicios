@@ -39,10 +39,12 @@ services:
       - nats-server
   productos-microservice:
     build: ./productos-microservice
-    ports:
-      - ${PRODUCTOS_MICROSERVICE_PORT}:3001
+    # comento el puerto porque no quiero que se tenga acceso a este microservicio desde fuera del entorno de Docker, ya que solo se comunica con el cliente-gateway a través de NATS. Al no exponer el puerto, se mejora la seguridad y se evita que otros servicios o usuarios externos puedan acceder directamente al microservicio de productos.
+    # ports:
+    #   - ${PRODUCTOS_MICROSERVICE_PORT}:3001
     volumes:
       - ./productos-microservice/src:/usr/src/app/src
+      - ./productos-microservice/dev.db:/usr/src/app/dev.db
     command: npm run start:dev
     environment:
       - PORT=3001
@@ -52,8 +54,9 @@ services:
       - nats-server
   pedidos-microservice:
     build: ./pedidos-microservice
-    ports:
-      - ${PEDIDOS_MICROSERVICE_PORT}:3002
+    # NO SE EXPORTA EL PUERTO YA QUE SOLO SE VA A ENTENER ACCESO A ESTE MICROSERVICIO DESDE EL CLIENTE-GATEWAY A TRAVES DE NATS, AL NO EXPOERLO SE MEJORA LA SEGURIDAD
+    # ports:
+    #   - ${PEDIDOS_MICROSERVICE_PORT}:3002
     volumes:
       - ./pedidos-microservice/src:/usr/src/app/src
     command: npm run start:dev
@@ -67,3 +70,23 @@ services:
       pedidos-database:
       # lo siguiente es para garantizar que el servicio de pedidos-microservice solo se inicie después de que la base de datos esté completamente lista y saludable. Esto es importante porque el microservicio de pedidos depende de la base de datos para funcionar correctamente, y si intenta conectarse a la base de datos antes de que esté lista, podría fallar o generar errores.
         condition: service_healthy
+  pagos-microservice:
+    container_name: pagos-microservice
+    build: ./pagos-microservice
+    # aqui si expongo el puerto ya que este microservicio se comunica tanto con el cliente-gateway como con servicios externos como Stripe, 
+    # se hace por que stripe cuando el cliente ya pago con la tarjeta, stripe hace una llamada a un endpoint de nuestro microservicio de pagos para notificar que el pago se realizo correctamente
+    ports:
+      - ${PAGOS_MICROSERVICE_PORT}:${PAGOS_MICROSERVICE_PORT}
+    volumes:
+      - ./pagos-microservice/src:/usr/src/app/src
+    command: npm run start:dev
+    environment:
+      - PORT=${PAGOS_MICROSERVICE_PORT}
+      - NATS_SERVERS=nats://nats-server:4222
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_ENDPOINT_SECRET=${STRIPE_ENDPOINT_SECRET}
+      - STRIPE_SUCCESS_URL=${STRIPE_SUCCESS_URL}
+      - STRIPE_CANCEL_URL=${STRIPE_CANCEL_URL}
+    depends_on:
+      nats-server:
+        condition: service_started
