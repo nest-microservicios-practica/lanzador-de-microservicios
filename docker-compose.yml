@@ -24,6 +24,34 @@ services:
       timeout: 5s
       retries: 10
       start_period: 10s
+  mongo-database:
+    container_name: mongo-database
+    image: mongo:8.0
+    restart: always
+    # Prisma con MongoDB requiere que la base de datos sea un replica set (incluso si es de un solo nodo).
+    # --replSet rs0     => arranca el daemon como miembro del replica set "rs0"
+    # --bind_ip_all     => acepta conexiones desde cualquier interfaz de red (necesario en Docker)
+    command: ["--replSet", "rs0", "--bind_ip_all"]
+    volumes:
+      # persistimos los datos de mongo en una carpeta local, igual que hicimos con postgres
+      - ./auth-microservice/mongo-data:/data/db
+    ports:
+      - '27017:27017'
+    # healthcheck con doble función:
+    #  1) Verifica que mongo esté vivo (rs.status())
+    #  2) Auto-inicializa el replica set la primera vez (rs.initiate()) si todavía no existe.
+    # Así no necesitamos un servicio "init" adicional para inicializar el replica set.
+    healthcheck:
+      test: |
+        mongosh --quiet --eval "
+          try { rs.status().ok } catch (e) {
+            rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: 'mongo-database:27017' }] })
+          }
+        "
+      interval: 10s
+      timeout: 30s
+      retries: 30
+      start_period: 10s
   cliente-gateway:
     build: ./cliente-gateway
     ports:
@@ -90,3 +118,24 @@ services:
     depends_on:
       nats-server:
         condition: service_started
+  auth-microservice:
+    build: ./auth-microservice
+    # NO SE EXPORTA EL PUERTO YA QUE SOLO SE VA A ENTENER ACCESO A ESTE MICROSERVICIO DESDE EL CLIENTE-GATEWAY A TRAVES DE NATS, AL NO EXPOERLO SE MEJORA LA SEGURIDAD
+    # ports:
+    #   - ${AUTH_MICROSERVICE_PORT}:3004
+    volumes:
+      - ./auth-microservice/src:/usr/src/app/src
+    command: npm run start:dev
+    environment:
+    # creo que el puerto no es necesario ya que el microservicio de auth no va a escuchar en un puerto, sino que va a recibir mensajes a través de NATS, pero lo dejo por si acaso, aunque realmente no es necesario
+      - PORT=${AUTH_MICROSERVICE_PORT}
+      - NATS_SERVERS=nats://nats-server:4222
+      # Prisma lee `DATABASE_URL` (ver auth-microservice/prisma.config.ts).
+      # directConnection=true    => fuerza conexión directa a este nodo (útil cuando solo hay 1 nodo en el replica set)
+      - DATABASE_URL=mongodb://mongo-database:27017/${MONGO_DB}?replicaSet=rs0&directConnection=true
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      nats-server:
+        condition: service_started
+      mongo-database:
+        condition: service_healthy
