@@ -1,0 +1,68 @@
+name: productos-nestjs-app
+services:
+  nats-server:
+    image: nats:2.12.7-alpine
+  cliente-gateway:
+    build:
+      context: ./cliente-gateway
+      dockerfile: dockerfile.prod
+      # le coloco el prefijo josueperezf/ para que la imagen se suba a mi cuenta de docker hub,
+      # se genera localmente la imagen con el nombre josueperezf/cliente-gateway-prod,
+      # luego la subo manualmente ejecutando manualmente el comando docker push josueperezf/cliente-gateway-prod
+      # o tambien puedo ir a docker desktop, buscar la imagen josueperezf/cliente-gateway-prod y darle click en push para subirla a docker hub
+    image: josueperezf/cliente-gateway-prod
+    ports:
+      - ${CLIENT_GATEWAY_PORT}:${CLIENT_GATEWAY_PORT}
+    environment:
+      - PORT=${CLIENT_GATEWAY_PORT}
+      - NATS_SERVERS=nats://nats-server:4222
+  productos-microservice:
+    build:
+      context: ./productos-microservice
+      dockerfile: dockerfile.prod
+    image: josueperezf/productos-microservice-prod
+    environment:
+      - PORT=3001
+      - NATS_SERVERS=nats://nats-server:4222
+      - DATABASE_URL=file:./dev.db
+  pedidos-microservice:
+    build:
+      context: ./pedidos-microservice
+      dockerfile: dockerfile.prod
+      args:
+        - PEDIDOS_DATABASE_URL=${PEDIDOS_DB_URL}
+    image: josueperezf/pedidos-microservice-prod
+    environment:
+    # el puerto no es necesario exponerlo
+      - PORT=3002
+      - NATS_SERVERS=nats://nats-server:4222
+      - DATABASE_URL=${PEDIDOS_DB_URL}
+  #  este pagos-microservice es hibrido, se comunica mediante NATS con el cliente-gateway, pero también se comunica directamente con Stripe por http
+  pagos-microservice:
+    container_name: pagos-microservice
+    build:
+      context: ./pagos-microservice
+      dockerfile: dockerfile.prod
+    image: josueperezf/pagos-microservice-prod
+    # aqui si expongo el puerto ya que este microservicio se comunica tanto con el cliente-gateway como con servicios externos como Stripe, 
+    # se hace por que stripe cuando el cliente ya pago con la tarjeta, stripe hace una llamada a un endpoint de nuestro microservicio de pagos para notificar que el pago se realizo correctamente
+    ports:
+      - ${PAGOS_MICROSERVICE_PORT}:${PAGOS_MICROSERVICE_PORT}
+    environment:
+      - PORT=${PAGOS_MICROSERVICE_PORT}
+      - NATS_SERVERS=nats://nats-server:4222
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_ENDPOINT_SECRET=${STRIPE_ENDPOINT_SECRET}
+      - STRIPE_SUCCESS_URL=${STRIPE_SUCCESS_URL}
+      - STRIPE_CANCEL_URL=${STRIPE_CANCEL_URL}
+  auth-microservice:
+    build:
+      context: ./auth-microservice
+      dockerfile: dockerfile.prod
+    image: josueperezf/auth-microservice-prod
+    environment:
+      - PORT=3000
+      - NATS_SERVERS=nats://nats-server:4222
+      # la siguiente es la conexion real a un db de prueba de https://cloud.mongodb.com/v2/6037a7a1212cb01ce9f80aa0#/clusters/connect?clusterId=auth-microservice-curso-nestjs
+      - DATABASE_URL=mongodb+srv://josue:gHgWzgEhqleiLDsz@auth-microservice-curso.q4tshyd.mongodb.net/auth_microservice_db?retryWrites=true&w=majority
+      - JWT_SECRET=${JWT_SECRET}

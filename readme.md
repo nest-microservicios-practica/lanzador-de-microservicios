@@ -5,6 +5,22 @@
 3. Ejecutar el comando `git submodule update --init --recursive` para reconstruir los submodulos
 4. Ejecutar el comando `docker compose up --build`
 
+
+## PASOS PARA GENERAR PRODUCCION DE TODOS LOS MICROSERVICIOS
+
+1. Ejecutar el comando ```docker compose -f docker-compase.prod.yml build```
+el anterior comando crea las imagenes para produccion y al mismo tiempo corre la migracion para el microservicio de pedidos, para los demas no se hizo, para auth-miservice no era necesario para el ejemplo actual, pero, el dockerfile.prod de pedido microservice tiene un ejemplo de como correr las migraciones con prisma al estar creando la imagen de produccion
+
+## PASOS SUBIR UNA IMAGEN DE UN MICROSERVICIO A hub.docker.com/
+
+1. abrir la terminal y movernos hasta la carpeta del microservicio
+2. tener iniciada la sesion desde el navegador web en [hub.docker.com/](https://hub.docker.com/)
+3. tener docker corriendo en la maquina donde estoy trabajando
+4. tener en la raiz del microservicio archivo `dockerfile.prod`
+5. para este ejemplo utilizamos el nombre de `cliente-gateway` para el microservicio que queremos subir
+6. ejecutar en la terminal el comando `docker build -f .\dockerfile.prod -t josueperezf/cliente-gateway .`
+7. luego de generar la imagen localmente, la subimos ejecutando en la terminal el comando: `docker push josueperezf/cliente-gateway`
+
 ## Pasos para crear los Git Submodules
 
 1. Crear un nuevo repositorio en GitHub
