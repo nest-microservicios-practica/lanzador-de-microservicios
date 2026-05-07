@@ -91,7 +91,7 @@ services:
     environment:
       - PORT=3002
       - NATS_SERVERS=nats://nats-server:4222
-      - DATABASE_URL=postgresql://postgres:12345@pedidos-database:5432/pedidosdb?schema=public
+      - DATABASE_URL=${PEDIDOS_DB_URL}
     depends_on:
       nats-server:
         condition: service_started
@@ -128,11 +128,12 @@ services:
     command: npm run start:dev
     environment:
     # creo que el puerto no es necesario ya que el microservicio de auth no va a escuchar en un puerto, sino que va a recibir mensajes a través de NATS, pero lo dejo por si acaso, aunque realmente no es necesario
-      - PORT=${AUTH_MICROSERVICE_PORT}
+      # - PORT=${AUTH_MICROSERVICE_PORT}
       - NATS_SERVERS=nats://nats-server:4222
       # Prisma lee `DATABASE_URL` (ver auth-microservice/prisma.config.ts).
       # directConnection=true    => fuerza conexión directa a este nodo (útil cuando solo hay 1 nodo en el replica set)
-      - DATABASE_URL=mongodb://mongo-database:27017/${MONGO_DB}?replicaSet=rs0&directConnection=true
+      # - DATABASE_URL=mongodb://mongo-database:27017/midb?replicaSet=rs0&directConnection=true
+      - DATABASE_URL=${AUTH_DB_URL}
       - JWT_SECRET=${JWT_SECRET}
     depends_on:
       nats-server:

@@ -8,8 +8,9 @@
 
 ## PASOS PARA GENERAR PRODUCCION DE TODOS LOS MICROSERVICIOS
 
-1. Ejecutar el comando ```docker compose -f docker-compase.prod.yml build```
+1. Ejecutar el comando ```docker compose --env-file .env.prod  -f docker-compose.prod.yml build```
 el anterior comando crea las imagenes para produccion y al mismo tiempo corre la migracion para el microservicio de pedidos, para los demas no se hizo, para auth-miservice no era necesario para el ejemplo actual, pero, el dockerfile.prod de pedido microservice tiene un ejemplo de como correr las migraciones con prisma al estar creando la imagen de produccion
+2. para probar localmente puedo levantar los contenedore con las imagenes de produccion ```docker compose --env-file .env.prod  -f docker-compose.prod.yml up```
 
 ## PASOS SUBIR UNA IMAGEN DE UN MICROSERVICIO A hub.docker.com/
 

@@ -61,8 +61,9 @@ services:
       dockerfile: dockerfile.prod
     image: josueperezf/auth-microservice-prod
     environment:
-      - PORT=3000
+      - PORT=${AUTH_MICROSERVICE_PORT}
       - NATS_SERVERS=nats://nats-server:4222
-      # la siguiente es la conexion real a un db de prueba de https://cloud.mongodb.com/v2/6037a7a1212cb01ce9f80aa0#/clusters/connect?clusterId=auth-microservice-curso-nestjs
-      - DATABASE_URL=mongodb+srv://josue:gHgWzgEhqleiLDsz@auth-microservice-curso.q4tshyd.mongodb.net/auth_microservice_db?retryWrites=true&w=majority
+      # AUTH_DB_URL apunta al cluster real de MongoDB Atlas. Se define en .env.prod (no versionado).
+      # Referencia del cluster: https://cloud.mongodb.com/v2/6037a7a1212cb01ce9f80aa0#/clusters/connect?clusterId=auth-microservice-curso-nestjs
+      - DATABASE_URL=${AUTH_DB_URL}
       - JWT_SECRET=${JWT_SECRET}
