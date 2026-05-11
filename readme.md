@@ -5,6 +5,9 @@
 3. Ejecutar el comando `git submodule update --init --recursive` para reconstruir los submodulos
 4. Ejecutar el comando `docker compose up --build`
 
+## NOTA DE DESPLIEGUE DE IMAGENES EN DOCKER HUB
+
+En este proyecto si subimos un commit a la rama main de cualquier microservicio, creará o actualizará su imagen de prod en la web de docker hub gracias a github actions, si por alguna razon no ocurre puede ser porque a lo mejor coloque como privado mis repos del proyecto, entonces necesitaria credenciales para poder descargar las imagenes en mi docker desktop
 
 ## PASOS PARA GENERAR PRODUCCION DE TODOS LOS MICROSERVICIOS
 
