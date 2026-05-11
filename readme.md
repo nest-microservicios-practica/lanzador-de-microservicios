@@ -21,6 +21,7 @@ el anterior comando crea las imagenes para produccion y al mismo tiempo corre la
 5. para este ejemplo utilizamos el nombre de `cliente-gateway` para el microservicio que queremos subir
 6. ejecutar en la terminal el comando `docker build -f .\dockerfile.prod -t josueperezf/cliente-gateway .`
 7. luego de generar la imagen localmente, la subimos ejecutando en la terminal el comando: `docker push josueperezf/cliente-gateway`
+8. NOTA: ACTUALMENTE TENEMOS UN ACTIONS DE GITHUB QUE HACE QUE CADA VEZ QUE SUBAMOS UN CAMBIO A LA RAMA MAIN, AUTOMATICAMENTE CREA LA IMAGEN EN https://hub.docker.com/ EJEMPLO <https://hub.docker.com/repository/docker/josueperezf/cliente-gateway> SI AL HACER CLICK QUE DEJO SALE UN 404 O ALGO ASI, ES PORQUE BORRE LA IMAGEN EN EL DOCKER HUB POR PRIVACIDAD, YA QUE NOTÉ QUE SUBIA UNA IMAGEN Y EN POCO TIEMPO YA TENIA 50 DESCARGAS DE LA NADA. PERO SI QUEREMOS CREARLA DE NUEVO, BASTARIA CON HACER UN COMMIT A LA RAMA MAIN. VOY A PONER TODOS LOS REPO DE LA ORGANIZACION <https://github.com/orgs/nest-microservicios-practica/repositories> COMO PRIVADA TAMBIEN, ASI QUE TENDRIA QUE PASARLA A PUBLICA PARA QUE ANDE
 
 ## PASOS PARA INSTALAR Y PROBAR KUBERNETES
 
