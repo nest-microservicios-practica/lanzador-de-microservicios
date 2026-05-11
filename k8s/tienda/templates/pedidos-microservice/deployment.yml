@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: pedidos-microservice
+  name: pedidos-microservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pedidos-microservice
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: pedidos-microservice
+    spec:
+      containers:
+      - image: josueperezf/pedidos-microservice:latest
+        name: pedidos-microservice
+        env:
+        - name: NATS_SERVERS
+          value: "nats://nats"
+        - name: DATABASE_URL
+        # el valor de DATABASE_URL por un tema de seguridad, se obtiene del secreto pedidos-microservice-secret, específicamente de la clave database_url. para dudas de que es un secret en kubertes, leer el readme.md
+          valueFrom:
+            secretKeyRef:
+              name: pedidos-microservice-secrets
+              key: database_url
+        resources: {}
+status: {}

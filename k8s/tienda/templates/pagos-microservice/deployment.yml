@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: pagos-microservice
+  name: pagos-microservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pagos-microservice
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: pagos-microservice
+    spec:
+      containers:
+      - image: josueperezf/pagos-microservice:latest
+        name: pagos-microservice
+        env:
+        - name: PORT
+          value: "3003"
+        - name: NATS_SERVERS
+          value: "nats://nats"
+        - name: STRIPE_SUCCESS_URL
+          value: "http://localhost:3003/pagos/success"
+        - name: STRIPE_CANCEL_URL
+          value: "http://localhost:3003/pagos/cancel"
+        # las anteriores variables de entorno se colocan en duro porque no son tan sensibles, 
+        # en cambios las siguientes como son mas delicadas, se crean como secretos en kubernetes y se referencian aqui
+        - name: STRIPE_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: pagos-microservice-secrets
+              key: stripe_secret_key
+        - name: STRIPE_ENDPOINT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: pagos-microservice-secrets
+              key: stripe_endpoint_secret
+        resources: {}
+status: {}

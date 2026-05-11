@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: auth-microservice
+  name: auth-microservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-microservice
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: auth-microservice
+    spec:
+      containers:
+      - image: josueperezf/auth-microservice:latest
+        name: auth-microservice
+        env:
+        - name: NATS_SERVERS
+          value: "nats://nats"
+        - name: JWT_SECRET
+        # el valor de JWT_SECRET por un tema de seguridad, se obtiene del secreto auth-microservice-secrets, específicamente de la clave jwt_secret. para dudas de que es un secret en kubertes, leer el readme.md
+        # en pocas palabras, un secret es un objeto de Kubernetes que permite almacenar y gestionar información sensible, como contraseñas, tokens o claves de acceso. en este caso, se está utilizando para almacenar el secreto JWT que se necesita para la autenticación en el microservicio.
+          valueFrom:
+            secretKeyRef:
+              name: auth-microservice-secrets
+              key: jwt_secret
+        - name: DATABASE_URL
+        # el valor de DATABASE_URL por un tema de seguridad, se obtiene del secreto auth-microservice-secrets, específicamente de la clave database_url. para dudas de que es un secret en kubertes, leer el readme.md
+        # en pocas palabras, un secret es un objeto de Kubernetes que permite almacenar y gestionar información sensible, como contraseñas, tokens o claves de acceso. en este caso, se está utilizando para almacenar la URL de la base de datos que se necesita para el microservicio.
+          valueFrom:
+            secretKeyRef:
+              name: auth-microservice-secrets
+              key: database_url
+
+        resources: {}
+status: {}

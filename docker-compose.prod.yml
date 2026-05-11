@@ -6,11 +6,11 @@ services:
     build:
       context: ./cliente-gateway
       dockerfile: dockerfile.prod
-      # le coloco el prefijo josueperezf/ para que la imagen se suba a mi cuenta de docker hub,
+      # le coloco el prefijo josueperezf/ para que la imagen porque con ese prefijo se sube a docker hub. la subida a docker hub las estoy haciendo automaticamente con github actions al hacer un pull a la rama build
       # se genera localmente la imagen con el nombre josueperezf/cliente-gateway-prod,
       # luego la subo manualmente ejecutando manualmente el comando docker push josueperezf/cliente-gateway-prod
       # o tambien puedo ir a docker desktop, buscar la imagen josueperezf/cliente-gateway-prod y darle click en push para subirla a docker hub
-    image: josueperezf/cliente-gateway-prod
+    image: josueperezf/cliente-gateway
     ports:
       - ${CLIENT_GATEWAY_PORT}:${CLIENT_GATEWAY_PORT}
     environment:
@@ -20,7 +20,7 @@ services:
     build:
       context: ./productos-microservice
       dockerfile: dockerfile.prod
-    image: josueperezf/productos-microservice-prod
+    image: josueperezf/productos-microservice
     environment:
       - PORT=3001
       - NATS_SERVERS=nats://nats-server:4222
@@ -29,9 +29,9 @@ services:
     build:
       context: ./pedidos-microservice
       dockerfile: dockerfile.prod
-      args:
-        - PEDIDOS_DATABASE_URL=${PEDIDOS_DB_URL}
-    image: josueperezf/pedidos-microservice-prod
+      # args:
+      #   - PEDIDOS_DATABASE_URL=${PEDIDOS_DB_URL}
+    image: josueperezf/pedidos-microservice
     environment:
     # el puerto no es necesario exponerlo
       - PORT=3002
@@ -43,7 +43,7 @@ services:
     build:
       context: ./pagos-microservice
       dockerfile: dockerfile.prod
-    image: josueperezf/pagos-microservice-prod
+    image: josueperezf/pagos-microservice
     # aqui si expongo el puerto ya que este microservicio se comunica tanto con el cliente-gateway como con servicios externos como Stripe, 
     # se hace por que stripe cuando el cliente ya pago con la tarjeta, stripe hace una llamada a un endpoint de nuestro microservicio de pagos para notificar que el pago se realizo correctamente
     ports:

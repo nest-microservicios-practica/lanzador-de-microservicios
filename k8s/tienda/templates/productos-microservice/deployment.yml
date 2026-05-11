@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: productos-microservice
+  name: productos-microservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: productos-microservice
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: productos-microservice
+    spec:
+      containers:
+      - image: josueperezf/productos-microservice:latest
+        name: productos-microservice
+        env:
+        - name: NATS_SERVERS
+          value: "nats://nats"
+        - name: DATABASE_URL
+          value: "file:./dev.db"
+        resources: {}
+status: {}

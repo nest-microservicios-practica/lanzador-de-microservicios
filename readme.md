@@ -22,6 +22,14 @@ el anterior comando crea las imagenes para produccion y al mismo tiempo corre la
 6. ejecutar en la terminal el comando `docker build -f .\dockerfile.prod -t josueperezf/cliente-gateway .`
 7. luego de generar la imagen localmente, la subimos ejecutando en la terminal el comando: `docker push josueperezf/cliente-gateway`
 
+## PASOS PARA INSTALAR Y PROBAR KUBERNETES
+
+1. tener docker desktop corriendo
+2. en docker desktop, configuracion, kubernetes, habilitarlo si no está
+3. instalar chocolatey, si no lo tenemos, lo instalamos, la instalacion se hace mediante un comando que se ejecuta en la powershell como administrador
+4. luego de instalar chocolatey, debemos instalar `https://helm.sh/` esto se hace colocando en la terminal el comando `choco install kubernetes-helm`
+5. en la terminal de docker, colocar el comando `kubectl version`, si da respuesta estamos bien
+
 ## Pasos para crear los Git Submodules
 
 1. Crear un nuevo repositorio en GitHub
