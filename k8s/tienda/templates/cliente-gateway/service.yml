@@ -1,3 +1,6 @@
+# los microservicios que se puedan acceder desde fuera del cluster, se exponen a través de un servicio de tipo NodePort, 
+# este que asigna un puerto en cada nodo del cluster y redirige el tráfico a los pods correspondientes. 
+#En este caso, el servicio cliente-gateway se expone en el puerto 3000.
 apiVersion: v1
 kind: Service
 metadata:
